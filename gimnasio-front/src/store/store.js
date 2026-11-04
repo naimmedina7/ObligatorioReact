@@ -1,5 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
+import spinnerReducer from "./slices/spinnerSlice";
+
+import actividadesReducer from "./slices/actividadesSlice";
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    spinner: spinnerReducer,
+    actividades: actividadesReducer,
+  },
 });

@@ -477,3 +477,14 @@ footer {
   background: #22c55e;
   display: inline-block;
 }
+
+/* Foto de perfil dentro del avatar circular */
+.avatar {
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

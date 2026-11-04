@@ -1,0 +1,38 @@
+/* Fondo oscuro que cubre la pantalla (overlayClassName de react-modal) */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1050;
+
+    /* Bootstrap define estas variables en la clase .modal, que react-modal no usa.
+       Sin ellas, .modal-header / .modal-body / .modal-footer quedan sin fondo ni padding */
+    --bs-modal-padding: 1rem;
+    --bs-modal-bg: var(--bs-body-bg, #fff);
+    --bs-modal-color: var(--bs-body-color);
+    --bs-modal-border-color: var(--bs-border-color-translucent, rgba(0, 0, 0, 0.175));
+    --bs-modal-border-width: var(--bs-border-width, 1px);
+    --bs-modal-border-radius: var(--bs-border-radius-lg, 0.5rem);
+    --bs-modal-inner-border-radius: calc(var(--bs-modal-border-radius) - var(--bs-modal-border-width));
+    --bs-modal-header-padding: 1rem 1rem;
+    --bs-modal-header-border-color: var(--bs-border-color, #dee2e6);
+    --bs-modal-header-border-width: var(--bs-border-width, 1px);
+    --bs-modal-title-line-height: 1.5;
+    --bs-modal-footer-gap: 0.5rem;
+    --bs-modal-footer-border-color: var(--bs-border-color, #dee2e6);
+    --bs-modal-footer-border-width: var(--bs-border-width, 1px);
+}
+
+/* Caja del modal (className de react-modal) */
+.modal-overlay .modal-content {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    outline: none;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+}

@@ -1,149 +1,145 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import loginSchema from "../validations/loginSchema";
+import { axiosConfig } from "../../utils/axiosConfig";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [campoUser, setCampoUser] = useState("");
-  const [campoPass, setCampoPass] = useState("");
 
-  const ingresar = async () => {
-    setError(false);
-    setLoading(true);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(loginSchema),
+    mode: "onChange",
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const onSubmit = async (data) => {
+    setError("");
 
     try {
-      const response = await fetch(
-        "https://api-gym-brown.vercel.app/v1/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: campoUser,
-            password: campoPass,
-          }),
-        },
-      );
+      const response = await axiosConfig.post("/v1/auth/login", data);
 
-      if (!response.ok) {
-        setError(true);
-        return;
+      if (!response.data.token) {
+        throw new Error("La respuesta de inicio de sesión no incluye un token.");
       }
 
-      const data = await response.json();
-      if (!data.token) {
-        throw new Error(
-          "La respuesta de inicio de sesión no incluye un token.",
-        );
-      }
-
-      localStorage.setItem("token", data.token);
-      navigate("/");
+      localStorage.setItem("token", response.data.token);
+      reset();
+      navigate("/actividades");
     } catch (requestError) {
       console.error("Error al iniciar sesión:", requestError);
-      setError(true);
-    } finally {
-      setLoading(false);
+      setError(
+        requestError.response?.data?.message ||
+          "No se pudo iniciar sesión. Verificá tus credenciales e intentá nuevamente.",
+      );
     }
   };
 
   return (
-    <>
-      <main className="auth-wrapper">
-        <div className="container">
-          <div className="card auth-card p-4 p-md-5">
-            {/* <div className="text-center mb-4">
-              <div className="feature-icon mb-3">
-                <i className="bi bi-box-arrow-in-right"></i>
-              </div>
-              <h1 className="h3 fw-bold">Bienvenido de nuevo</h1>
-              <p className="text-muted mb-0">
-                Ingresá para ver tus actividades
-              </p>
-            </div> */}
-
-            {/* <!-- Estado de error: respuesta 400 "Credenciales invalidas" --> */}
-            {/* <div
+    <main className="auth-wrapper">
+      <div className="container">
+        <div className="card auth-card p-4 p-md-5">
+          {error && (
+            <div
               className="alert alert-danger d-flex align-items-center gap-2 py-2 small"
               role="alert"
             >
-              <i className="bi bi-exclamation-circle"></i> Credenciales
-              inválidas
-            </div> */}
+              <i className="bi bi-exclamation-circle"></i> {error}
+            </div>
+          )}
 
-            <div>
-              {error && (
-                <div className="alert alert-danger py-2 small" role="alert">
-                  No se pudo iniciar sesión. Verificá tus credenciales e intentá
-                  nuevamente.
-                </div>
-              )}
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  Usuario
-                </label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-person"></i>
-                  </span>
+          <div className="mb-3">
+            <label htmlFor="username" className="form-label">
+              Usuario
+            </label>
+            <div className="input-group has-validation">
+              <span className="input-group-text">
+                <i className="bi bi-person"></i>
+              </span>
+              <Controller
+                control={control}
+                name="username"
+                render={({ field }) => (
                   <input
-                    type="text"
-                    className="form-control"
+                    {...field}
                     id="username"
+                    type="text"
                     placeholder="tu_usuario"
-                    minLength="3"
-                    maxLength="20"
-                    required
-                    value={campoUser}
-                    onChange={(event) => setCampoUser(event.target.value)}
+                    className={`form-control ${errors.username ? "is-invalid" : ""}`}
                   />
-                </div>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="password" className="form-label">
-                  Contraseña
-                </label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-lock"></i>
-                  </span>
+                )}
+              />
+              {errors.username && (
+                <div className="invalid-feedback">{errors.username.message}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="password" className="form-label">
+              Contraseña
+            </label>
+            <div className="input-group has-validation">
+              <span className="input-group-text">
+                <i className="bi bi-lock"></i>
+              </span>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field }) => (
                   <input
-                    type="password"
-                    className="form-control"
+                    {...field}
                     id="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••"
-                    minLength="3"
-                    maxLength="20"
-                    required
-                    value={campoPass}
-                    onChange={(event) => setCampoPass(event.target.value)}
+                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
                   />
-                </div>
-              </div>
-              {/* <!-- En la maqueta el botón navega a actividades --> */}
+                )}
+              />
               <button
                 type="button"
-                className="btn btn-brand w-100 py-2"
-                onClick={ingresar}
-                disabled={loading || !campoUser.trim() || !campoPass.trim()}
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                {loading ? "Ingresando..." : "Iniciar sesión"}
+                <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
               </button>
+              {errors.password && (
+                <div className="invalid-feedback">{errors.password.message}</div>
+              )}
             </div>
-
-            <p className="text-center text-muted small mt-4 mb-0">
-              ¿No tenés cuenta?
-              <Link to="/registro" className="text-brand fw-semibold">
-                Registrate
-              </Link>
-              {/* ¿No tenés cuenta? <a href="/registro" className="text-brand fw-semibold">Registrate</a> */}
-            </p>
           </div>
+
+          <button
+            type="button"
+            className="btn btn-brand w-100 py-2"
+            onClick={handleSubmit(onSubmit)}
+            disabled={!isValid || isSubmitting}
+          >
+            {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
+          </button>
+
+          <p className="text-center text-muted small mt-4 mb-0">
+            ¿No tenés cuenta?{" "}
+            <Link to="/registro" className="text-brand fw-semibold">
+              Registrate
+            </Link>
+          </p>
         </div>
-      </main>
-    </>
+      </div>
+    </main>
   );
 };
 

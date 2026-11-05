@@ -11,6 +11,9 @@ import Home from "./components/Home";
 import Registro from "./components/Registro";
 import Footer from "./components/Footer";
 import ListaActividades from "./components/ListaActividadesModal/Lista/ListaActividades";
+import Inscripcion from "./components/htmlAcomponent/Inscripcion";
+import Premium from "./components/htmlAcomponent/Premium";
+import Admin from "./components/htmlAcomponent/Admin";
 import { Routes, Route, BrowserRouter } from "react-router";
 import { Toaster } from "react-hot-toast";
 
@@ -28,6 +31,9 @@ const App = () => {
           {/* Rutas para usuarios logueados */}
           <Route element={<MenuUsuario />}>
             <Route path="/actividades" element={<ListaActividades />} />
+            <Route path="/inscripciones" element={<Inscripcion />} />
+            <Route path="/premium" element={<Premium />} />
+            <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>
       </BrowserRouter>

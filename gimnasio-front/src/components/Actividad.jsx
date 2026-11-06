@@ -1,20 +1,3 @@
-// Estilo (clase de color + ícono) según el nombre de la categoría.
-// Las clases cat-* están definidas en App.css.
-const estilosPorCategoria = {
-  musculacion: { clase: "cat-musculacion", icono: "bi-trophy" },
-  funcional: { clase: "cat-funcional", icono: "bi-fire" },
-  yoga: { clase: "cat-yoga", icono: "bi-flower1" },
-  spinning: { clase: "cat-spinning", icono: "bi-bicycle" },
-  natacion: { clase: "cat-natacion", icono: "bi-water" },
-  boxeo: { clase: "cat-boxeo", icono: "bi-lightning-fill" },
-};
-
-const estiloPorDefecto = { clase: "cat-funcional", icono: "bi-activity" };
-
-// "Natación" -> "natacion" (minúsculas y sin tildes)
-const normalizar = (texto = "") =>
-  texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-
 // La API manda la fecha en UTC ("2026-11-25T00:00:00.000Z").
 // timeZone: "UTC" evita que en Uruguay se muestre un día antes.
 const formatearFecha = (fecha) =>
@@ -23,14 +6,10 @@ const formatearFecha = (fecha) =>
     : "-";
 
 const Actividad = ({ actividad, categoria, onInscribir, onEditar, puedeEditar = false }) => {
-  const estilo = estilosPorCategoria[normalizar(categoria)] ?? estiloPorDefecto;
 
   return (
     <div className="col-sm-6 col-lg-4">
       <div className="card card-hover h-100">
-        <div className={`activity-cover ${estilo.clase}`}>
-          <i className={`bi ${estilo.icono}`}></i>
-        </div>
         <div className="card-body d-flex flex-column">
           <span className="badge text-bg-light align-self-start mb-2">
             {categoria || "Sin categoría"}
@@ -46,9 +25,6 @@ const Actividad = ({ actividad, categoria, onInscribir, onEditar, puedeEditar = 
             </span>
           </div>
           <div className="d-flex gap-2">
-            <button type="button" className="btn btn-outline-secondary btn-sm flex-fill">
-              Ver detalle
-            </button>
             {puedeEditar && (
               <button type="button" className="btn btn-outline-secondary btn-sm flex-fill" onClick={() => onEditar?.(actividad)}>
                 <i className="bi bi-pencil"></i> Editar

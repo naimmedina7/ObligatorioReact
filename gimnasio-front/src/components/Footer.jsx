@@ -3,7 +3,7 @@ const Footer = () => {
         <footer className="py-4">
             <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small">
                 <span>© 2026 ApiGym · Centro deportivo</span>
-                <span><span className="status-dot me-1"></span> API online</span>
+                <span>Gonzalo Viglioni (301042) - Naim Medina (301545)</span>
             </div>
         </footer>
     )

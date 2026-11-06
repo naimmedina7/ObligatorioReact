@@ -25,9 +25,13 @@ export const actividadesSlice = createSlice({
                 // Mezclamos para no perder campos que el formulario no manda (createdAt, etc.)
                 state.listaActividades[index] = { ...state.listaActividades[index], ...actividadEditada };
             }
+        },
+        // Saca una actividad de la lista (después del DELETE). Recibe el _id
+        eliminarActividad: (state, action) => {
+            state.listaActividades = state.listaActividades.filter(actividad => actividad._id !== action.payload);
         }
     }
 });
 
-export const { guardarActividades, agregarActividad, editarActividad } = actividadesSlice.actions;
+export const { guardarActividades, agregarActividad, editarActividad, eliminarActividad } = actividadesSlice.actions;
 export default actividadesSlice.reducer;

@@ -31,7 +31,7 @@ const ListaActividades = () => {
         const obtenerActividades = async () => {
             dispatch(mostrarSpinner());
             try {
-                const respuesta = await axiosConfig.get("/v1/actividades")
+                const respuesta = await axiosConfig.get("/v1/actividades?page=1&limit=10")
                 const lista = respuesta.data.data ?? [];
                 dispatch(guardarActividades(lista))
 

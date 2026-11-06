@@ -11,9 +11,9 @@ import Home from "./components/Home";
 import Registro from "./components/Registro";
 import Footer from "./components/Footer";
 import ListaActividades from "./components/ListaActividadesModal/Lista/ListaActividades";
-import Inscripcion from "./components/htmlAcomponent/Inscripcion";
-import Premium from "./components/htmlAcomponent/Premium";
-import Admin from "./components/htmlAcomponent/Admin";
+import Inscripcion from "./components/InscripcionesModal/Lista/Inscripciones";
+import Premium from "./components/PremiumModal/Premium";
+import Admin from "./components/PanelAdminModal/PanelAdmin";
 import { Routes, Route, BrowserRouter } from "react-router";
 import { Toaster } from "react-hot-toast";
 

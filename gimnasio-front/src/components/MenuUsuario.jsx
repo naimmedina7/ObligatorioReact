@@ -1,6 +1,8 @@
 import { Outlet, NavLink, useNavigate } from 'react-router';
 import { useEffect, useState } from "react";
 import { axiosConfig } from "../../utils/axiosConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { guardarPremium } from "../store/slices/premiumSlice";
 
 const MenuUsuario = () => {
   const navigate = useNavigate();
@@ -8,7 +10,9 @@ const MenuUsuario = () => {
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [role, setRole] = useState("");
-  const [premium, setPremium] = useState(false);
+  // El plan vive en Redux: cuando Premium.jsx lo cambia, el badge se actualiza solo
+  const premium = useSelector(state => state.premium.esPremium);
+  const dispatch = useDispatch();
   // Si la imagen no carga (URL rota), guardamos esa URL para mostrar las iniciales
   const [avatarConError, setAvatarConError] = useState("");
 
@@ -42,7 +46,7 @@ const MenuUsuario = () => {
         setName(data.name || "");
         setAvatarUrl(data.avatarUrl || "");
         setRole(data.role || "user");
-        setPremium(data.premium || false);
+        dispatch(guardarPremium(data.premium || false));
 
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
@@ -54,7 +58,7 @@ const MenuUsuario = () => {
     };
 
     obtenerDatosUsuario();
-  }, [navigate]);
+  }, [navigate, dispatch]);
 
   return (
     <div>

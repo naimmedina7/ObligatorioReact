@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup";
-import { actividadAdminSchema } from './validations/admin.schema';
+import { actividadAdminSchema, hoyTexto } from './validations/admin.schema';
 
 // "2026-11-25T00:00:00.000Z" -> "2026-11-25" (formato que usa <input type="date">)
 const aFechaInput = (fecha) => (fecha ? fecha.slice(0, 10) : "");
@@ -19,7 +19,8 @@ const ActividadForm = ({ actividad, categorias, onSave, onCancel, errorApi }) =>
         formState: { errors, isSubmitting, isDirty }
     } = useForm({
         resolver: yupResolver(actividadAdminSchema),
-        defaultValues: { name: "", categoryId: "", date: "", schedule: "", description: "" },
+        // Al crear, la fecha es la de hoy (el campo no se muestra)
+        defaultValues: { name: "", categoryId: "", date: hoyTexto(), schedule: "", description: "" },
         mode: "onChange"
     });
 
@@ -41,11 +42,12 @@ const ActividadForm = ({ actividad, categorias, onSave, onCancel, errorApi }) =>
         if (editando) {
             await onSave({ _id: actividad._id, ...values });
         } else {
-            // Al crear no se manda la descripción: la genera la IA
+            // Al crear no se manda la descripción: la genera la IA.
+            // La fecha es la del momento en que se crea la actividad.
             await onSave({
                 name: values.name,
                 categoryId: values.categoryId,
-                date: values.date,
+                date: hoyTexto(),
                 schedule: values.schedule,
             });
         }
@@ -101,23 +103,26 @@ const ActividadForm = ({ actividad, categorias, onSave, onCancel, errorApi }) =>
                 </div>
 
                 <div className="row g-3 mb-3">
-                    <div className="col-6">
-                        <label htmlFor="actDate" className="form-label">Fecha</label>
-                        <Controller
-                            control={control}
-                            name="date"
-                            render={({ field }) => (
-                                <input
-                                    {...field}
-                                    id="actDate"
-                                    type="date"
-                                    className={`form-control ${errors.date ? "is-invalid" : ""}`}
-                                />
-                            )}
-                        />
-                        {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
-                    </div>
-                    <div className="col-6">
+                    {/* La fecha solo se pide al editar; al crear se usa la de hoy */}
+                    {editando && (
+                        <div className="col-6">
+                            <label htmlFor="actDate" className="form-label">Fecha</label>
+                            <Controller
+                                control={control}
+                                name="date"
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        id="actDate"
+                                        type="date"
+                                        className={`form-control ${errors.date ? "is-invalid" : ""}`}
+                                    />
+                                )}
+                            />
+                            {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
+                        </div>
+                    )}
+                    <div className={editando ? "col-6" : "col-12"}>
                         <label htmlFor="actSchedule" className="form-label">Horario</label>
                         <Controller
                             control={control}

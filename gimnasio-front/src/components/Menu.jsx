@@ -5,7 +5,7 @@ const Menu = () => {
         <div>
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container">
-                    <NavLink className="navbar-brand" to="/"><i className="bi bi-lightning-charge-fill text-brand"></i> Api<span>Gym</span></NavLink>
+                    <NavLink className="navbar-brand" to="/"><i className="bi bi-lightning-charge-fill text-brand"></i> App<span>Gym</span></NavLink>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPublic">
                         <span className="navbar-toggler-icon"></span>
                     </button>

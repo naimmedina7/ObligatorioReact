@@ -489,3 +489,16 @@ footer {
   height: 100%;
   object-fit: cover;
 }
+
+/* ----- Footer siempre abajo -----
+   El footer está dentro de #root (no directo en el body),
+   así que #root ocupa toda la altura y el footer se empuja al final. */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto;
+}

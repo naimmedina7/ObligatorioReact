@@ -17,9 +17,9 @@ const Actividad = ({ actividad, categoria, onInscribir, onEditar, puedeEditar = 
           <h5 className="fw-bold">{actividad.name}</h5>
           <p className="text-muted small flex-grow-1">{actividad.description}</p>
           <div className="d-flex gap-3 small text-muted mb-3">
-            <span>
+            {/* <span>
               <i className="bi bi-calendar3"></i> {formatearFecha(actividad.date)}
-            </span>
+            </span> */}
             <span>
               <i className="bi bi-clock"></i> {actividad.schedule}
             </span>

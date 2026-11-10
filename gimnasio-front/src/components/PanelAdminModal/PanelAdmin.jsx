@@ -6,26 +6,32 @@ import ActividadModal from "./Modal/ActividadModal";
 import CategoriaModal from "./Modal/CategoriaModal";
 import EliminarModal from "./Modal/EliminarModal";
 import { useDispatch, useSelector } from "react-redux";
-import { mostrarSpinner, ocultarSpinner } from "../../store/slices/spinnerSlice";
-import { guardarActividades, editarActividad, eliminarActividad } from "../../store/slices/actividadesSlice";
-import { guardarCategorias, editarCategoria, eliminarCategoria } from "../../store/slices/categoriasSlice";
-import { Chart as ChartJS, ArcElement, Title, Tooltip, Legend } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
-ChartJS.register(
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import {
+  mostrarSpinner,
+  ocultarSpinner,
+} from "../../store/slices/spinnerSlice";
+import {
+  guardarActividades,
+  editarActividad,
+  eliminarActividad,
+} from "../../store/slices/actividadesSlice";
+import {
+  guardarCategorias,
+  editarCategoria,
+  eliminarCategoria,
+} from "../../store/slices/categoriasSlice";
+import { Chart as ChartJS, ArcElement, Title, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+ChartJS.register(ArcElement, Title, Tooltip, Legend);
 
 const coloresGrafica = [
-  'rgba(255, 90, 31, 0.7)',
-  'rgba(54, 162, 235, 0.7)',
-  'rgba(255, 206, 86, 0.7)',
-  'rgba(75, 192, 192, 0.7)',
-  'rgba(153, 102, 255, 0.7)',
-  'rgba(255, 99, 132, 0.7)',
-  'rgba(255, 159, 64, 0.7)',
+  "rgba(255, 90, 31, 0.7)",
+  "rgba(54, 162, 235, 0.7)",
+  "rgba(255, 206, 86, 0.7)",
+  "rgba(75, 192, 192, 0.7)",
+  "rgba(153, 102, 255, 0.7)",
+  "rgba(255, 99, 132, 0.7)",
+  "rgba(255, 159, 64, 0.7)",
 ];
 
 // La API manda la fecha en UTC ("2026-11-25T00:00:00.000Z"). TimeZone "UTC" evita que se muestre un día antes.
@@ -34,11 +40,12 @@ const formatearFecha = (fecha) =>
     ? new Date(fecha).toLocaleDateString("es-UY", { timeZone: "UTC" })
     : "-";
 
-
 const Admin = () => {
   // Listas en Redux
-  const actividades = useSelector(state => state.actividades.listaActividades);
-  const categorias = useSelector(state => state.categorias.listaCategorias);
+  const actividades = useSelector(
+    (state) => state.actividades.listaActividades,
+  );
+  const categorias = useSelector((state) => state.categorias.listaCategorias);
 
   // Pestaña activa: "actividades" - "categorias"
   const [pestania, setPestania] = useState("actividades");
@@ -61,7 +68,6 @@ const Admin = () => {
 
   const dispatch = useDispatch();
 
-
   // GET /v1/categorias
   useEffect(() => {
     const obtenerCategorias = async () => {
@@ -75,13 +81,12 @@ const Admin = () => {
       } finally {
         dispatch(ocultarSpinner());
       }
-    }
+    };
     obtenerCategorias();
   }, [dispatch, recargarCategorias]);
 
-
   // GET /v1/actividades o /v1/actividades/categoria/:categoryId si hay filtro
-  useEffect(() => {
+  /*useEffect(() => {
     const obtenerActividades = async () => {
       dispatch(mostrarSpinner());
       try {
@@ -101,17 +106,19 @@ const Admin = () => {
       }
     }
     obtenerActividades();
-  }, [dispatch, pagina, filtroCategoria, recargarActividades]);
+  }, [dispatch, pagina, filtroCategoria, recargarActividades]);*/
 
   // Gráfica: la tabla trae solo 5 por página, así que pedimos todas para contarlas.
   // Se vuelve a calcular cuando cambia la lista (crear, editar o eliminar).
   useEffect(() => {
     const contarActividades = async () => {
       try {
-        const respuesta = await axiosConfig.get("/v1/actividades?page=1&limit=100");
+        const respuesta = await axiosConfig.get(
+          "/v1/actividades?page=1&limit=100",
+        );
         const todas = respuesta.data.data ?? [];
         const conteo = {};
-        todas.forEach(actividad => {
+        todas.forEach((actividad) => {
           const c = actividad.categoryId;
           conteo[c] = (conteo[c] || 0) + 1;
         });
@@ -119,52 +126,53 @@ const Admin = () => {
       } catch (error) {
         console.error("Error al contar las actividades: ", error);
       }
-    }
+    };
     contarActividades();
   }, [actividades]);
-
 
   const abrirModal = (tipo, elemento) => {
     setSeleccion(elemento);
     setErrorApi("");
     setModalAbierto(tipo);
-  }
+  };
 
   const cerrarModal = () => {
     setSeleccion(null);
     setErrorApi("");
     setModalAbierto(null);
-  }
+  };
 
   const nombreCategoria = (categoryId) => {
     const categoria = categorias.find((c) => c._id === categoryId);
     return categoria ? categoria.name : "-";
-  }
+  };
 
   const optionsDona = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right',
+        position: "right",
       },
       title: {
         display: true,
-        text: 'Actividades por categoría'
-      }
-    }
+        text: "Actividades por categoría",
+      },
+    },
   };
 
   const dataDona = {
-    labels: categorias.map(categoria => categoria.name),
+    labels: categorias.map((categoria) => categoria.name),
     datasets: [
       {
-        label: 'Actividades',
-        data: categorias.map(categoria => actividadesPorCategoria[categoria._id] || 0),
+        label: "Actividades",
+        data: categorias.map(
+          (categoria) => actividadesPorCategoria[categoria._id] || 0,
+        ),
         backgroundColor: coloresGrafica,
-      }]
+      },
+    ],
   };
-
 
   // POST /v1/actividades  PUT /v1/actividades/:id
   const guardarActividad = async (datos) => {
@@ -184,11 +192,14 @@ const Admin = () => {
       cerrarModal();
     } catch (error) {
       console.error("Error al guardar la actividad: ", error);
-      setErrorApi(error.response?.data?.error || "No se pudo guardar la actividad. Intentá nuevamente.");
+      setErrorApi(
+        error.response?.data?.error ||
+          "No se pudo guardar la actividad. Intentá nuevamente.",
+      );
     } finally {
       dispatch(ocultarSpinner());
     }
-  }
+  };
 
   // POST /v1/categorias PUT /v1/categorias/:id
   const guardarCategoria = async (datos) => {
@@ -196,7 +207,9 @@ const Admin = () => {
     setErrorApi("");
     try {
       if (datos._id) {
-        await axiosConfig.put(`/v1/categorias/${datos._id}`, { name: datos.name });
+        await axiosConfig.put(`/v1/categorias/${datos._id}`, {
+          name: datos.name,
+        });
         dispatch(editarCategoria(datos));
         toast.success("Categoría actualizada");
       } else {
@@ -207,11 +220,14 @@ const Admin = () => {
       cerrarModal();
     } catch (error) {
       console.error("Error al guardar la categoría: ", error);
-      setErrorApi(error.response?.data?.error || "No se pudo guardar la categoría. Intentá nuevamente.");
+      setErrorApi(
+        error.response?.data?.error ||
+          "No se pudo guardar la categoría. Intentá nuevamente.",
+      );
     } finally {
       dispatch(ocultarSpinner());
     }
-  }
+  };
 
   // DELETE /v1/actividades/:id  DELETE /v1/categorias/:id
   const confirmarEliminar = async () => {
@@ -229,13 +245,15 @@ const Admin = () => {
     } catch (error) {
       console.error("Error al eliminar: ", error);
       // Ej actividad con inscripciones o categoría con actividades
-      toast.error(error.response?.data?.error || "No se pudo eliminar. Intentá nuevamente.");
+      toast.error(
+        error.response?.data?.error ||
+          "No se pudo eliminar. Intentá nuevamente.",
+      );
     } finally {
       cerrarModal();
       dispatch(ocultarSpinner());
     }
-  }
-
+  };
 
   return (
     <>
@@ -244,7 +262,9 @@ const Admin = () => {
         <div className="container">
           <div className="mb-4">
             <h1 className="h2 fw-bold mb-1">Panel de administración</h1>
-            <p className="text-muted mb-0">Gestioná las actividades y categorías del centro.</p>
+            <p className="text-muted mb-0">
+              Gestioná las actividades y categorías del centro.
+            </p>
           </div>
 
           {/* Resumen + gráfica */}
@@ -293,8 +313,8 @@ const Admin = () => {
           {pestania === "actividades" ? (
             /*TAB ACTIVIDADES*/
             <div>
-              <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
-                <select
+              <div className="d-flex justify-content-end mb-3">
+                {/* <select
                   className="form-select form-select-sm"
                   style={{ maxWidth: "220px" }}
                   value={filtroCategoria}
@@ -307,8 +327,12 @@ const Admin = () => {
                   {categorias.map((categoria) => (
                     <option key={categoria._id} value={categoria._id}>{categoria.name}</option>
                   ))}
-                </select>
-                <button type="button" className="btn btn-brand btn-sm" onClick={() => abrirModal("actividad", null)}>
+                </select> */}
+                <button
+                  type="button"
+                  className="btn btn-brand btn-sm"
+                  onClick={() => abrirModal("actividad", null)}
+                >
                   <i className="bi bi-plus-lg"></i> Nueva actividad
                 </button>
               </div>
@@ -328,21 +352,46 @@ const Admin = () => {
                     <tbody>
                       {actividades.length === 0 ? (
                         <tr>
-                          <td colSpan="5" className="text-center text-muted py-4">No hay actividades para mostrar.</td>
+                          <td
+                            colSpan="5"
+                            className="text-center text-muted py-4"
+                          >
+                            No hay actividades para mostrar.
+                          </td>
                         </tr>
                       ) : (
                         actividades.map((actividad) => (
                           <tr key={actividad._id}>
-                            <td className="ps-4"><strong>{actividad.name}</strong></td>
-                            <td><span className="badge text-bg-light">{nombreCategoria(actividad.categoryId)}</span></td>
+                            <td className="ps-4">
+                              <strong>{actividad.name}</strong>
+                            </td>
+                            <td>
+                              <span className="badge text-bg-light">
+                                {nombreCategoria(actividad.categoryId)}
+                              </span>
+                            </td>
                             <td>{formatearFecha(actividad.date)}</td>
                             <td>{actividad.schedule}</td>
                             <td className="text-end pe-4">
                               <div className="d-inline-flex gap-2">
-                                <button type="button" className="btn btn-outline-secondary btn-sm" aria-label="Editar" onClick={() => abrirModal("actividad", actividad)}>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-secondary btn-sm"
+                                  aria-label="Editar"
+                                  onClick={() =>
+                                    abrirModal("actividad", actividad)
+                                  }
+                                >
                                   <i className="bi bi-pencil"></i>
                                 </button>
-                                <button type="button" className="btn btn-outline-danger btn-sm" aria-label="Eliminar" onClick={() => abrirModal("eliminarActividad", actividad)}>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-danger btn-sm"
+                                  aria-label="Eliminar"
+                                  onClick={() =>
+                                    abrirModal("eliminarActividad", actividad)
+                                  }
+                                >
                                   <i className="bi bi-trash"></i>
                                 </button>
                               </div>
@@ -358,13 +407,27 @@ const Admin = () => {
               <nav className="mt-4">
                 <ul className="pagination pagination-sm justify-content-center">
                   <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-                    <button type="button" className="page-link" onClick={() => setPagina(pagina - 1)}>Anterior</button>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setPagina(pagina - 1)}
+                    >
+                      Anterior
+                    </button>
                   </li>
                   <li className="page-item active">
                     <span className="page-link">{pagina}</span>
                   </li>
-                  <li className={`page-item ${pagina >= totalPaginas ? "disabled" : ""}`}>
-                    <button type="button" className="page-link" onClick={() => setPagina(pagina + 1)}>Siguiente</button>
+                  <li
+                    className={`page-item ${pagina >= totalPaginas ? "disabled" : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setPagina(pagina + 1)}
+                    >
+                      Siguiente
+                    </button>
                   </li>
                 </ul>
               </nav>
@@ -373,7 +436,11 @@ const Admin = () => {
             /* TAB CATEGORÍAS*/
             <div>
               <div className="d-flex justify-content-end mb-3">
-                <button type="button" className="btn btn-brand btn-sm" onClick={() => abrirModal("categoria", null)}>
+                <button
+                  type="button"
+                  className="btn btn-brand btn-sm"
+                  onClick={() => abrirModal("categoria", null)}
+                >
                   <i className="bi bi-plus-lg"></i> Nueva categoría
                 </button>
               </div>
@@ -391,19 +458,42 @@ const Admin = () => {
                     <tbody>
                       {categorias.length === 0 ? (
                         <tr>
-                          <td colSpan="3" className="text-center text-muted py-4">No hay categorías para mostrar.</td>
+                          <td
+                            colSpan="3"
+                            className="text-center text-muted py-4"
+                          >
+                            No hay categorías para mostrar.
+                          </td>
                         </tr>
                       ) : (
                         categorias.map((categoria) => (
                           <tr key={categoria._id}>
-                            <td className="ps-4"><strong>{categoria.name}</strong></td>
-                            <td className="text-muted small">{formatearFecha(categoria.createdAt)}</td>
+                            <td className="ps-4">
+                              <strong>{categoria.name}</strong>
+                            </td>
+                            <td className="text-muted small">
+                              {formatearFecha(categoria.createdAt)}
+                            </td>
                             <td className="text-end pe-4">
                               <div className="d-inline-flex gap-2">
-                                <button type="button" className="btn btn-outline-secondary btn-sm" aria-label="Editar" onClick={() => abrirModal("categoria", categoria)}>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-secondary btn-sm"
+                                  aria-label="Editar"
+                                  onClick={() =>
+                                    abrirModal("categoria", categoria)
+                                  }
+                                >
                                   <i className="bi bi-pencil"></i>
                                 </button>
-                                <button type="button" className="btn btn-outline-danger btn-sm" aria-label="Eliminar" onClick={() => abrirModal("eliminarCategoria", categoria)}>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-danger btn-sm"
+                                  aria-label="Eliminar"
+                                  onClick={() =>
+                                    abrirModal("eliminarCategoria", categoria)
+                                  }
+                                >
                                   <i className="bi bi-trash"></i>
                                 </button>
                               </div>
@@ -436,13 +526,16 @@ const Admin = () => {
         errorApi={errorApi}
       />
       <EliminarModal
-        isOpen={modalAbierto === "eliminarActividad" || modalAbierto === "eliminarCategoria"}
+        isOpen={
+          modalAbierto === "eliminarActividad" ||
+          modalAbierto === "eliminarCategoria"
+        }
         onRequestClose={cerrarModal}
         nombre={seleccion?.name}
         onConfirm={confirmarEliminar}
       />
     </>
-  )
-}
+  );
+};
 
 export default Admin;

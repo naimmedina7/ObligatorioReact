@@ -69,8 +69,6 @@ const Home = () => {
             </div>
           </div>
         </section>
-
-        {/* CÓMO FUNCIONA */}
         <section className="py-5">
           <div className="container">
             <h2 className="fw-bold text-center mb-5">¿Cómo funciona?</h2>

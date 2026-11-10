@@ -6,7 +6,6 @@ import { editInscripcionSchema, hoyTexto } from './validations/inscripcion.schem
 // "2026-11-25T00:00:00.000Z" -> "2026-11-25" (formato que usa <input type="date">)
 const aFechaInput = (fecha) => (fecha ? fecha.slice(0, 10) : "");
 
-
 const EditarInscripcionForm = ({ inscripcion, onSave, onCancel }) => {
 
     const {
@@ -20,7 +19,6 @@ const EditarInscripcionForm = ({ inscripcion, onSave, onCancel }) => {
         mode: "onChange"
     });
 
-    // Cuando llega la inscripción, se carga su fecha en el formulario
     useEffect(() => {
         if (inscripcion) {
             reset({ date: aFechaInput(inscripcion.date) })
@@ -66,7 +64,6 @@ const EditarInscripcionForm = ({ inscripcion, onSave, onCancel }) => {
                 <button type="button" className="btn btn-outline-secondary" onClick={onCancel} disabled={isSubmitting}>
                     Cancelar
                 </button>
-                {/* Igual que en clase: solo se puede guardar si se cambió algo */}
                 <button type="submit" className="btn btn-brand" disabled={isSubmitting || !isDirty}>
                     {isSubmitting ? "Guardando..." : "Guardar cambios"}
                 </button>

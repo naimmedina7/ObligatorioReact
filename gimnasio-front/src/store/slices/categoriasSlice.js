@@ -8,7 +8,7 @@ export const categoriasSlice = createSlice({
     name: "categorias",
     initialState,
     reducers: {
-        // Reemplaza la lista completa (lo que devuelve GET /v1/categorias)
+        // Reemplaza la lista completa (GET /v1/categorias)
         guardarCategorias: (state, action) => {
             state.listaCategorias = action.payload;
         },
@@ -24,7 +24,7 @@ export const categoriasSlice = createSlice({
                 state.listaCategorias[index] = { ...state.listaCategorias[index], ...categoriaEditada };
             }
         },
-        // Saca una categoría de la lista (después del DELETE). Recibe el _id
+        // Saca una categoría de la lista (después del DELETE) Recibe el _id
         eliminarCategoria: (state, action) => {
             state.listaCategorias = state.listaCategorias.filter(categoria => categoria._id !== action.payload);
         }

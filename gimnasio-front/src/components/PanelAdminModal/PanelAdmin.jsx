@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { axiosConfig } from "../../../utils/axiosConfig";
+import { axiosConfig } from "../../utils/axiosConfig";
 import toast from "react-hot-toast";
 import Spinner from "../ListaActividadesModal/Spinner/Spinner";
 import ActividadModal from "./Modal/ActividadModal";
@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { mostrarSpinner, ocultarSpinner } from "../../store/slices/spinnerSlice";
 import { guardarActividades, editarActividad, eliminarActividad } from "../../store/slices/actividadesSlice";
 import { guardarCategorias, editarCategoria, eliminarCategoria } from "../../store/slices/categoriasSlice";
-// Gráfica circular, igual que en Clima.jsx de clase
 import { Chart as ChartJS, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 ChartJS.register(
@@ -29,8 +28,7 @@ const coloresGrafica = [
   'rgba(255, 159, 64, 0.7)',
 ];
 
-// La API manda la fecha en UTC ("2026-11-25T00:00:00.000Z").
-// timeZone: "UTC" evita que en Uruguay se muestre un día antes.
+// La API manda la fecha en UTC ("2026-11-25T00:00:00.000Z"). TimeZone "UTC" evita que se muestre un día antes.
 const formatearFecha = (fecha) =>
   fecha
     ? new Date(fecha).toLocaleDateString("es-UY", { timeZone: "UTC" })
@@ -38,12 +36,11 @@ const formatearFecha = (fecha) =>
 
 
 const Admin = () => {
-
   // Listas en Redux
   const actividades = useSelector(state => state.actividades.listaActividades);
   const categorias = useSelector(state => state.categorias.listaCategorias);
 
-  // Pestaña activa: "actividades" | "categorias"
+  // Pestaña activa: "actividades" - "categorias"
   const [pestania, setPestania] = useState("actividades");
 
   // Paginación y filtro de actividades
@@ -55,12 +52,8 @@ const Admin = () => {
   // Al crear algo, sumamos 1 para que el useEffect vuelva a pedir la lista
   const [recargarActividades, setRecargarActividades] = useState(0);
   const [recargarCategorias, setRecargarCategorias] = useState(0);
-
-  // Qué modal está abierto: null | "actividad" | "categoria" | "eliminarActividad" | "eliminarCategoria"
   const [modalAbierto, setModalAbierto] = useState(null);
-  // La actividad o categoría elegida (null = crear una nueva)
   const [seleccion, setSeleccion] = useState(null);
-  // Error de la API que se muestra dentro del modal (ej: 409 nombre repetido)
   const [errorApi, setErrorApi] = useState("");
 
   // Para la gráfica: cuántas actividades tiene cada categoría, ej: { c1: 5, c2: 1 }
@@ -74,7 +67,6 @@ const Admin = () => {
     const obtenerCategorias = async () => {
       dispatch(mostrarSpinner());
       try {
-        // Esta ruta devuelve el array directo: [ {_id, name, createdAt}, ... ]
         const respuesta = await axiosConfig.get("/v1/categorias");
         dispatch(guardarCategorias(respuesta.data));
       } catch (error) {
@@ -88,7 +80,7 @@ const Admin = () => {
   }, [dispatch, recargarCategorias]);
 
 
-  // GET /v1/actividades (o /v1/actividades/categoria/:categoryId si hay filtro)
+  // GET /v1/actividades o /v1/actividades/categoria/:categoryId si hay filtro
   useEffect(() => {
     const obtenerActividades = async () => {
       dispatch(mostrarSpinner());
@@ -111,7 +103,6 @@ const Admin = () => {
     obtenerActividades();
   }, [dispatch, pagina, filtroCategoria, recargarActividades]);
 
-
   // Gráfica: la tabla trae solo 5 por página, así que pedimos todas para contarlas.
   // Se vuelve a calcular cuando cambia la lista (crear, editar o eliminar).
   useEffect(() => {
@@ -119,8 +110,6 @@ const Admin = () => {
       try {
         const respuesta = await axiosConfig.get("/v1/actividades?page=1&limit=100");
         const todas = respuesta.data.data ?? [];
-
-        // Igual que en Clima.jsx: cuenta cuántas veces aparece cada categoría
         const conteo = {};
         todas.forEach(actividad => {
           const c = actividad.categoryId;
@@ -147,14 +136,11 @@ const Admin = () => {
     setModalAbierto(null);
   }
 
-  // Nombre de la categoría de una actividad
   const nombreCategoria = (categoryId) => {
     const categoria = categorias.find((c) => c._id === categoryId);
     return categoria ? categoria.name : "-";
   }
 
-
-  // Gráfica circular (igual que optionsDona / dataDona en Clima.jsx)
   const optionsDona = {
     responsive: true,
     maintainAspectRatio: false,
@@ -180,7 +166,7 @@ const Admin = () => {
   };
 
 
-  // POST /v1/actividades (crear) · PUT /v1/actividades/:id (editar)
+  // POST /v1/actividades  PUT /v1/actividades/:id
   const guardarActividad = async (datos) => {
     dispatch(mostrarSpinner());
     setErrorApi("");
@@ -198,14 +184,13 @@ const Admin = () => {
       cerrarModal();
     } catch (error) {
       console.error("Error al guardar la actividad: ", error);
-      // El error se muestra dentro del modal, que queda abierto
-      setErrorApi(error.response?.data?.message || "No se pudo guardar la actividad. Intentá nuevamente.");
+      setErrorApi(error.response?.data?.error || "No se pudo guardar la actividad. Intentá nuevamente.");
     } finally {
       dispatch(ocultarSpinner());
     }
   }
 
-  // POST /v1/categorias (crear) · PUT /v1/categorias/:id (editar)
+  // POST /v1/categorias PUT /v1/categorias/:id
   const guardarCategoria = async (datos) => {
     dispatch(mostrarSpinner());
     setErrorApi("");
@@ -222,13 +207,13 @@ const Admin = () => {
       cerrarModal();
     } catch (error) {
       console.error("Error al guardar la categoría: ", error);
-      setErrorApi(error.response?.data?.message || "No se pudo guardar la categoría. Intentá nuevamente.");
+      setErrorApi(error.response?.data?.error || "No se pudo guardar la categoría. Intentá nuevamente.");
     } finally {
       dispatch(ocultarSpinner());
     }
   }
 
-  // DELETE /v1/actividades/:id · DELETE /v1/categorias/:id
+  // DELETE /v1/actividades/:id  DELETE /v1/categorias/:id
   const confirmarEliminar = async () => {
     dispatch(mostrarSpinner());
     try {
@@ -243,8 +228,8 @@ const Admin = () => {
       toast.success(`Se eliminó ${seleccion.name}`);
     } catch (error) {
       console.error("Error al eliminar: ", error);
-      // Ej: actividad con inscripciones o categoría con actividades
-      toast.error(error.response?.data?.message || "No se pudo eliminar. Intentá nuevamente.");
+      // Ej actividad con inscripciones o categoría con actividades
+      toast.error(error.response?.data?.error || "No se pudo eliminar. Intentá nuevamente.");
     } finally {
       cerrarModal();
       dispatch(ocultarSpinner());
@@ -284,8 +269,6 @@ const Admin = () => {
               </div>
             </div>
           </div>
-
-          {/* Pestañas (con useState en vez del JS de Bootstrap) */}
           <ul className="nav nav-underline admin-tabs mb-4">
             <li className="nav-item">
               <button
@@ -308,7 +291,7 @@ const Admin = () => {
           </ul>
 
           {pestania === "actividades" ? (
-            /* ===== TAB ACTIVIDADES ===== */
+            /*TAB ACTIVIDADES*/
             <div>
               <div className="d-flex flex-wrap justify-content-between gap-2 mb-3">
                 <select
@@ -387,7 +370,7 @@ const Admin = () => {
               </nav>
             </div>
           ) : (
-            /* ===== TAB CATEGORÍAS ===== */
+            /* TAB CATEGORÍAS*/
             <div>
               <div className="d-flex justify-content-end mb-3">
                 <button type="button" className="btn btn-brand btn-sm" onClick={() => abrirModal("categoria", null)}>

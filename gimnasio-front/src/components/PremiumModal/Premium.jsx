@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { axiosConfig } from "../../../utils/axiosConfig";
+import { axiosConfig } from "../../utils/axiosConfig";
 import toast from "react-hot-toast";
 import Spinner from "../ListaActividadesModal/Spinner/Spinner";
 import ConfirmarPremiumModal from "./Modal/ConfirmarPremiumModal";
@@ -8,8 +8,6 @@ import { mostrarSpinner, ocultarSpinner } from "../../store/slices/spinnerSlice"
 import { guardarPremium, activarPremium } from "../../store/slices/premiumSlice";
 
 const Premium = () => {
-
-  // El plan vive en Redux: así el menú se entera apenas cambia
   const premium = useSelector(state => state.premium.esPremium);
   const [modalAbierto, setModalAbierto] = useState(false);
 
@@ -42,7 +40,7 @@ const Premium = () => {
     setModalAbierto(false);
   }
 
-  // PATCH /v1/usuarios/premium (sin body, toma el usuario del token)
+  // PATCH /v1/usuarios/premium
   const hacersePremium = async () => {
     dispatch(mostrarSpinner());
     try {
@@ -53,10 +51,10 @@ const Premium = () => {
       cerrarModal();
     } catch (error) {
       console.error("Error al pasarse a premium: ", error);
-      const mensaje = error.response?.data?.message;
+      const mensaje = error.response?.data?.error;
       toast.error(mensaje || "No se pudo actualizar tu plan. Intentá nuevamente.");
 
-      // 400 "El usuario ya es premium": mostramos el estado de premium
+      // 400 El usuario ya es premium - mostramos el estado de premium
       if (mensaje && mensaje.toLowerCase().includes("ya es premium")) {
         dispatch(activarPremium());
       }

@@ -1,5 +1,4 @@
 import * as yup from "yup";
-
 // Fecha de hoy en el mismo formato que <input type="date">: "2026-11-05"
 export const hoyTexto = () => {
     const hoy = new Date();

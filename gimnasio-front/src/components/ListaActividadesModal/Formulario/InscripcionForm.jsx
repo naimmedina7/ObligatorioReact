@@ -6,7 +6,7 @@ import { inscripcionSchema } from './validations/actividad.schema';
 const aFechaInput = (fecha) => (fecha ? fecha.slice(0, 10) : "");
 
 
-// POST /v1/inscripciones { activityId, date, activityName }
+// POST /v1/inscripciones
 const InscripcionForm = ({ actividad, onSave, onCancel }) => {
 
     const {
@@ -69,7 +69,6 @@ const InscripcionForm = ({ actividad, onSave, onCancel }) => {
                 <button type="button" className="btn btn-outline-secondary" onClick={onCancel} disabled={isSubmitting}>
                     Cancelar
                 </button>
-                {/* Acá no usamos isDirty: confirmar con la fecha propuesta es válido */}
                 <button type="submit" className="btn btn-brand" disabled={isSubmitting || !isValid}>
                     {isSubmitting ? "Inscribiendo..." : "Confirmar"}
                 </button>

@@ -1,8 +1,6 @@
 import Modal from "react-modal";
 import "../../ListaActividadesModal/Modal/Modal.css";
-
 // Sirve para eliminar una actividad o una categoría.
-// No lleva formulario: es solo una confirmación (igual que CancelarInscripcionModal)
 const EliminarModal = ({ isOpen, onRequestClose, nombre, onConfirm }) => {
   return (
     <Modal

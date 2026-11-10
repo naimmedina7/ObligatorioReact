@@ -11,7 +11,7 @@ export const axiosConfig = axios.create({
     }
 })
 
-// Antes de cada request, si hay token guardado lo agrega al header
+// Antes de cada request si hay token guardado lo agrega al header
 axiosConfig.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -20,7 +20,7 @@ axiosConfig.interceptors.request.use((config) => {
     return config;
 })
 
-// Si la API responde 401 (token vencido o inválido), se borra el token
+// Si la API responde 401 (token vencido o inválido) se borra el token guardado
 axiosConfig.interceptors.response.use(
     (response) => response,
     (error) => {

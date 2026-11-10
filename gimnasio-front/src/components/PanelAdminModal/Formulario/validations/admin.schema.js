@@ -9,8 +9,8 @@ export const hoyTexto = () => {
     return `${anio}-${mes}-${dia}`;
 }
 
-// Crear  -> POST /v1/actividades { name, categoryId, date, schedule }  (date = hoy, no se pide)
-// Editar -> PUT  /v1/actividades/:id { name, categoryId, description, date, schedule }
+// POST /v1/actividades  name, categoryId, date, schedule
+// PUT  /v1/actividades/:id  name, categoryId, description, date, schedule 
 export const actividadAdminSchema = yup.object().shape({
     name: yup.string().trim().min(3, "Mínimo 3 caracteres").max(50, "Máximo 50 caracteres").required("El nombre es obligatorio"),
     categoryId: yup.string().required("Seleccioná una categoría"),
@@ -19,7 +19,7 @@ export const actividadAdminSchema = yup.object().shape({
     description: yup.string().max(255, "Máximo 255 caracteres"),
 })
 
-// POST /v1/categorias · PUT /v1/categorias/:id { name }
+// POST /v1/categorias PUT /v1/categorias/:id name
 export const categoriaSchema = yup.object().shape({
     name: yup.string().trim().min(3, "Mínimo 3 caracteres").max(50, "Máximo 50 caracteres").required("El nombre es obligatorio"),
 })

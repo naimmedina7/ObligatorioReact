@@ -8,7 +8,7 @@ export const inscripcionesSlice = createSlice({
     name: "inscripciones",
     initialState,
     reducers: {
-        // Reemplaza la lista completa (lo que devuelve GET /v1/inscripciones)
+        // Reemplaza la lista completa ( GET /v1/inscripciones)
         guardarInscripciones: (state, action) => {
             state.listaInscripciones = action.payload;
         },
@@ -25,7 +25,7 @@ export const inscripcionesSlice = createSlice({
                 state.listaInscripciones[index] = { ...state.listaInscripciones[index], ...inscripcionEditada };
             }
         },
-        // Saca una inscripción de la lista (después del DELETE). Recibe el _id
+        // Saca una inscripción de la lista (después del DELETE) Recibe el _id
         eliminarInscripcion: (state, action) => {
             state.listaInscripciones = state.listaInscripciones.filter(inscripcion => inscripcion._id !== action.payload);
         }

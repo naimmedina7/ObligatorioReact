@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { axiosConfig } from '../../../../utils/axiosConfig';
+import { axiosConfig } from '../../../utils/axiosConfig';
 import toast from 'react-hot-toast';
 import Spinner from '../../ListaActividadesModal/Spinner/Spinner';
 import EditarInscripcionModal from '../Modal/EditarInscripcionModal';
@@ -10,48 +10,38 @@ import { mostrarSpinner, ocultarSpinner } from '../../../store/slices/spinnerSli
 import { guardarInscripciones, editarInscripcion, eliminarInscripcion } from '../../../store/slices/inscripcionesSlice';
 import { guardarPremium } from '../../../store/slices/premiumSlice';
 
-// Plan Clásico: máximo 4 inscripciones
-const MAXIMO_CLASICO = 4;
+// Plan Basico máximo 4 inscripciones
+const MAXIMO_BASICO = 4;
 
-// La API manda la fecha en UTC ("2026-11-25T00:00:00.000Z").
-// timeZone: "UTC" evita que en Uruguay se muestre un día antes.
+// La API manda la fecha en UTC ("2026-11-25T00:00:00.000Z") timeZone UTC evita que se muestre un día antes.
 const formatearFecha = (fecha) =>
     fecha
         ? new Date(fecha).toLocaleDateString("es-UY", { timeZone: "UTC" })
         : "-";
 
-
 const Inscripcion = () => {
-
-    // La lista y el plan viven en Redux
     const inscripciones = useSelector(state => state.inscripciones.listaInscripciones);
     const premium = useSelector(state => state.premium.esPremium);
-    // Datos de cada actividad (para el horario): { activityId: actividad }
     const [actividades, setActividades] = useState({});
 
-    // Paginación: GET /v1/inscripciones?page=1&limit=5
+    //GET /v1/inscripciones?page=1&limit=5
     const [pagina, setPagina] = useState(1);
     const [totalPaginas, setTotalPaginas] = useState(1);
-
-    // Qué modal está abierto: null | "editar" | "cancelar"
     const [modalAbierto, setModalAbierto] = useState(null);
     const [inscripcionSeleccionada, setInscripcionSeleccionada] = useState(null);
 
     const dispatch = useDispatch();
 
-
     useEffect(() => {
         const obtenerInscripciones = async () => {
             dispatch(mostrarSpinner());
             try {
-                // La API devuelve solo las inscripciones del usuario del token
+                // La API devuelve solo las inscripciones del usuario logeado
                 const respuesta = await axiosConfig.get(`/v1/inscripciones?page=${pagina}&limit=5`);
                 const lista = respuesta.data.data ?? [];
                 dispatch(guardarInscripciones(lista));
                 setTotalPaginas(respuesta.data.totalPages ?? 1);
 
-                // Para el horario necesitamos los datos de cada actividad.
-                // Si dos inscripciones son de la misma actividad, se pide una sola vez.
                 const datosActividades = {};
                 for (const inscripcion of lista) {
                     const idActividad = inscripcion.activityId;
@@ -61,7 +51,7 @@ const Inscripcion = () => {
                             const actividad = respuestaActividad.data.data ?? respuestaActividad.data;
                             datosActividades[idActividad] = actividad;
                         } catch (error) {
-                            // Si falla, esa fila muestra "-" en el horario
+                            // Si falla, esa fila muestra -
                             console.error("Error al cargar la actividad: ", error);
                         }
                     }
@@ -73,8 +63,6 @@ const Inscripcion = () => {
             } finally {
                 dispatch(ocultarSpinner());
             }
-
-            // Plan del usuario (igual que en MenuUsuario)
             try {
                 const respuestaUsuario = await axiosConfig.get("/v1/usuarios/me");
                 dispatch(guardarPremium(respuestaUsuario.data.premium || false));
@@ -96,11 +84,11 @@ const Inscripcion = () => {
         setModalAbierto(null);
     }
 
-    // Editar inscripción (PATCH)
+    // Editar inscripcion (PATCH)
     const guardarCambios = async (inscripcionEditada) => {
         dispatch(mostrarSpinner());
         try {
-            // PATCH /v1/inscripciones/:id  { "date": "2026-11-01" }
+            // PATCH /v1/inscripciones/:id "date": "2026-11-01"
             await axiosConfig.patch(`/v1/inscripciones/${inscripcionEditada._id}`, {
                 date: inscripcionEditada.date,
             });
@@ -109,7 +97,7 @@ const Inscripcion = () => {
             cerrarModal();
         } catch (error) {
             console.error("Error al actualizar la inscripción: ", error);
-            toast.error(error.response?.data?.message || "No se pudo actualizar la inscripción. Intentá nuevamente.");
+            toast.error(error.response?.data?.error || "No se pudo actualizar la inscripción. Intentá nuevamente.");
         } finally {
             dispatch(ocultarSpinner());
         }
@@ -125,14 +113,14 @@ const Inscripcion = () => {
             cerrarModal();
         } catch (error) {
             console.error("Error al cancelar la inscripción: ", error);
-            toast.error(error.response?.data?.message || "No se pudo cancelar la inscripción. Intentá nuevamente.");
+            toast.error(error.response?.data?.error || "No se pudo cancelar la inscripción. Intentá nuevamente.");
         } finally {
             dispatch(ocultarSpinner());
         }
     }
 
     const cantidad = inscripciones.length;
-    const porcentaje = Math.min((cantidad / MAXIMO_CLASICO) * 100, 100);
+    const porcentaje = Math.min((cantidad / MAXIMO_BASICO) * 100, 100);
 
 
     return (
@@ -152,14 +140,14 @@ const Inscripcion = () => {
                         </Link>
                     </div>
 
-                    {/* Uso del plan (no premium: máximo 4) */}
+                    {/* Uso del plan (basico: máximo 4) */}
                     {!premium && (
                         <div className="card p-4 mb-4">
                             <div className="row align-items-center g-3">
                                 <div className="col-md-8">
                                     <div className="d-flex justify-content-between small mb-2">
                                         <span className="fw-semibold">Plan Clásico</span>
-                                        <span className="text-muted">{cantidad} de {MAXIMO_CLASICO} inscripciones</span>
+                                        <span className="text-muted">{cantidad} de {MAXIMO_BASICO} inscripciones</span>
                                     </div>
                                     <div className="progress" style={{ height: "10px" }}>
                                         <div

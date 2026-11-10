@@ -6,7 +6,6 @@ import { actividadAdminSchema, hoyTexto } from './validations/admin.schema';
 // "2026-11-25T00:00:00.000Z" -> "2026-11-25" (formato que usa <input type="date">)
 const aFechaInput = (fecha) => (fecha ? fecha.slice(0, 10) : "");
 
-
 // Si recibe "actividad" es para editar; si es null, es para crear
 const ActividadForm = ({ actividad, categorias, onSave, onCancel, errorApi }) => {
 
@@ -19,7 +18,7 @@ const ActividadForm = ({ actividad, categorias, onSave, onCancel, errorApi }) =>
         formState: { errors, isSubmitting, isDirty }
     } = useForm({
         resolver: yupResolver(actividadAdminSchema),
-        // Al crear, la fecha es la de hoy (el campo no se muestra)
+        // Al crear, la fecha es la de hoy
         defaultValues: { name: "", categoryId: "", date: hoyTexto(), schedule: "", description: "" },
         mode: "onChange"
     });
@@ -163,7 +162,7 @@ const ActividadForm = ({ actividad, categorias, onSave, onCancel, errorApi }) =>
                     </div>
                 )}
 
-                {/* Error de la API, ej: 409 "Ya existe una actividad con ese nombre." */}
+                {/* Error de la API*/}
                 {errorApi && (
                     <div className="alert alert-danger small mt-3 mb-0">
                         <i className="bi bi-exclamation-circle"></i> {errorApi}

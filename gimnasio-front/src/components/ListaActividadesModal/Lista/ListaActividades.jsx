@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { axiosConfig } from '../../../../utils/axiosConfig';
-import { obtenerUsuario } from '../../../../utils/usuario';
+import { axiosConfig } from '../../../utils/axiosConfig';
+import { obtenerUsuario } from '../../../utils/usuario';
 import toast from 'react-hot-toast';
 import Actividad from '../../Actividad';
 import Spinner from '../Spinner/Spinner';
@@ -17,7 +17,7 @@ const ListaActividades = () => {
     const actividades = useSelector(state => state.actividades.listaActividades);
     const [categorias, setCategorias] = useState({});
 
-    // Qué modal está abierto: null | "inscripcion" | "editar"
+    // Que modal está abierto: null | "inscripcion" | "editar"
     const [modalAbierto, setModalAbierto] = useState(null);
     const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
 
@@ -34,9 +34,6 @@ const ListaActividades = () => {
                 const respuesta = await axiosConfig.get("/v1/actividades?page=1&limit=10")
                 const lista = respuesta.data.data ?? [];
                 dispatch(guardarActividades(lista))
-
-                // Pedimos el nombre de cada categoría.
-                // Si dos actividades comparten categoría, se pide una sola vez.
                 const nombres = {};
                 for (const actividad of lista) {
                     const id = actividad.categoryId;
@@ -73,7 +70,7 @@ const ListaActividades = () => {
         setModalAbierto(null);
     }
 
-    // POST /v1/inscripciones { activityId, date, activityName }
+    // POST /v1/inscripciones
     const inscribirse = async (inscripcion) => {
         dispatch(mostrarSpinner());
         try {
@@ -82,8 +79,7 @@ const ListaActividades = () => {
             cerrarModal();
         } catch (error) {
             console.error("Error al inscribirse: ", error);
-            // Si la API explica el motivo (ej: límite del plan), lo mostramos
-            toast.error(error.response?.data?.message || "No se pudo completar la inscripción. Intentá nuevamente.");
+            toast.error(error.response?.data?.error || "No se pudo completar la inscripción. Intentá nuevamente.");
         } finally {
             dispatch(ocultarSpinner());
         }
@@ -100,7 +96,7 @@ const ListaActividades = () => {
             cerrarModal();
         } catch (error) {
             console.error("Error al actualizar la actividad: ", error);
-            toast.error(error.response?.data?.message || "No se pudo actualizar la actividad. Intentá nuevamente.");
+            toast.error(error.response?.data?.error || "No se pudo actualizar la actividad. Intentá nuevamente.");
         } finally {
             dispatch(ocultarSpinner());
         }
@@ -152,109 +148,3 @@ const ListaActividades = () => {
 }
 
 export default ListaActividades;
-
-
-
-
-// import { useEffect, useState } from 'react';
-// import { axiosConfig } from '../../../utils/axiosConfig';
-// import toast from 'react-hot-toast';
-// import EditTaskModal from '../Modal/EditTaskModal';
-// import Spinner from '../Spinner/Spinner';
-// import { useDispatch } from 'react-redux';
-// import { mostrarSpinner, ocultarSpinner } from '../../../store/slices/spinnerSlice';
-// import "./ListaDeTareas.css";
-
-
-// const ListaDeTareasModal = () => {
-
-//     const [tareas, setTareas] = useState([]);
-//     const [modalAbierto, setModalAbierto] = useState(false);
-//     const [tareaSeleccionada, setTareaSeleccionada] = useState(null);
-
-//     const dispatch = useDispatch();
-
-//     useEffect(() => {
-//         const obtenerTareas = async () => {
-//             dispatch(mostrarSpinner());
-//             try {
-//                 const respuesta = await axiosConfig.get("/todos", {
-//                     params: { _limit: 20 }
-//                 })
-//                 console.log(respuesta);
-//                 setTareas(respuesta.data)
-//                 toast.success("Tareas cargadas exitosamente");
-//             } catch (error) {
-//                 console.error("Error al cargar las tareas: ", error);
-//                 toast.error("No se pudieron cargar las tareas");
-//             } finally {
-//                 dispatch(ocultarSpinner());
-//             }
-//         }
-//         obtenerTareas();
-//     }, []);
-
-
-//     const abrirModal = (tarea) => {
-//         setTareaSeleccionada(tarea);
-//         setModalAbierto(true);
-//     };
-
-//     const cerrarModal = () => {
-//         setTareaSeleccionada(null);
-//         setModalAbierto(false);
-//     }
-
-//     const guardarCambios = async (tareaEditada) => {
-//         dispatch(mostrarSpinner());
-//         try {
-//             await axiosConfig.put(`/todos/${tareaEditada.id}`, tareaEditada);
-//             setTareas((prev) =>
-//                 prev.map((t) => (t.id === tareaEditada.id ? { ...t, ...tareaEditada } : t))
-//             );
-//             toast.success("Tarea actualizada");
-//             cerrarModal();
-//         } catch (error) {
-//             console.error("Error al actualizar la tarea:", error);
-//             toast.error("No se pudo actualizar la tarea");
-//         } finally {
-//             dispatch(ocultarSpinner())
-//         }
-//     }
-
-
-//     return (
-//         <div style={{ padding: "16px" }}>
-//             <Spinner />
-//             <h2 className="tareas-title">Últimas 20 tareas</h2>
-
-//             <ul className="tareas-list">
-//                 {tareas.map((tarea) => (
-//                     <li key={tarea.id} className="tarea-item">
-//                         <div className="tarea-info">
-//                             <span className="tarea-id">#{tarea.id}</span>
-//                             <span className="tarea-title">{tarea.title}</span>
-//                             <span className={`tarea-badge ${tarea.completed ? "ok" : "pending"}`}>
-//                                 {tarea.completed ? "Completada" : "Pendiente"}
-//                             </span>
-//                         </div>
-
-//                         <div className="tarea-actions">
-//                             <button className="btn btn-edit" onClick={() => abrirModal(tarea)}>
-//                                 Editar
-//                             </button>
-//                         </div>
-//                     </li>
-//                 ))}
-//             </ul>
-//             <EditTaskModal
-//                 isOpen={modalAbierto}
-//                 onRequestClose={cerrarModal}
-//                 task={tareaSeleccionada}
-//                 onSave={guardarCambios}
-//             />
-//         </div>
-//     )
-// }
-
-// export default ListaDeTareasModal

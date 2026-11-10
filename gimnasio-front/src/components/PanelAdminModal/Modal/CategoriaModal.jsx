@@ -2,8 +2,7 @@ import Modal from "react-modal";
 import "../../ListaActividadesModal/Modal/Modal.css";
 import CategoriaForm from "../Formulario/CategoriaForm";
 
-
-// Sirve para crear (categoria = null) y para editar (categoria = la seleccionada)
+// Sirve para crear y para editar
 const CategoriaModal = ({ isOpen, onRequestClose, categoria, onSave, errorApi }) => {
   return (
     <Modal

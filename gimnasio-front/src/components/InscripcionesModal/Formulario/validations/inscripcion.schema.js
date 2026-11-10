@@ -13,7 +13,6 @@ export const editInscripcionSchema = yup.object().shape({
     date: yup
         .string()
         .required("La fecha es obligatoria")
-        // Como las dos fechas son texto "AAAA-MM-DD", se pueden comparar directo
         .test("no-pasada", "La fecha no puede ser anterior a hoy", (fecha) =>
             fecha ? fecha >= hoyTexto() : false
         ),

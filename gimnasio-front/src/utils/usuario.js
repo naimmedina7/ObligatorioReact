@@ -1,5 +1,5 @@
-// Lee el payload del JWT guardado: { id, username, role, iat, exp }.
-// Solo sirve para mostrar/ocultar cosas en pantalla: la API es la que valida el token.
+// Lee el payload del JWT guardado
+// sirve para mostrar o ocultar cosas segun el rol
 export const obtenerUsuario = () => {
     const token = localStorage.getItem("token");
     if (!token) return null;

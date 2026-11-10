@@ -2,7 +2,6 @@ import Modal from "react-modal";
 import "../../ListaActividadesModal/Modal/Modal.css";
 
 // PATCH /v1/usuarios/premium
-// No lleva formulario: es solo una confirmación (igual que CancelarInscripcionModal)
 const ConfirmarPremiumModal = ({ isOpen, onRequestClose, onConfirm }) => {
   return (
     <Modal

@@ -1,9 +1,6 @@
 import "./App.css";
-//import './bootstrap.min.css';
-
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-
 import Menu from "./components/Menu";
 import MenuUsuario from "./components/MenuUsuario";
 import Login from "./components/Login";

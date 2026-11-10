@@ -12,7 +12,6 @@ const Menu = () => {
                     <div className="collapse navbar-collapse" id="navPublic">
                         <ul className="navbar-nav me-auto">
                             <li className="nav-item"><NavLink className="nav-link active" to="/">Inicio</NavLink></li>
-                            {/* <li className="nav-item"><NavLink className="nav-link" to="/planes">Planes</NavLink></li> */}
                         </ul>
                         <div className="d-flex gap-2">
                             <NavLink to="/login" className="btn btn-outline-light btn-sm">Iniciar sesión</NavLink>

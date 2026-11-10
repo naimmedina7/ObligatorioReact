@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router';
 import { useEffect, useState } from "react";
-import { axiosConfig } from "../../utils/axiosConfig";
+import { axiosConfig } from "../utils/axiosConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { guardarPremium } from "../store/slices/premiumSlice";
 
@@ -10,7 +10,6 @@ const MenuUsuario = () => {
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [role, setRole] = useState("");
-  // El plan vive en Redux: cuando Premium.jsx lo cambia, el badge se actualiza solo
   const premium = useSelector(state => state.premium.esPremium);
   const dispatch = useDispatch();
   // Si la imagen no carga (URL rota), guardamos esa URL para mostrar las iniciales
@@ -26,14 +25,14 @@ const MenuUsuario = () => {
   };
 
   useEffect(() => {
-    // 1. Verificamos si existe el token en el localStorage
+    // Verificamos si existe el token en el localStorage
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/");
       return;
     }
 
-    // 2. Función para obtener los datos del usuario enviando el token
+    // Función para obtener los datos del usuario enviando el token
     const obtenerDatosUsuario = async () => {
       try {
         const response = await axiosConfig.get("/v1/usuarios/me", {
@@ -50,7 +49,7 @@ const MenuUsuario = () => {
 
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
-        // Si el token expiró o no es válido (401), cerramos sesión automáticamente
+        // Si el token expiró o no es válido (401) cerramos sesión automáticamente
         if (error.response && error.response.status === 401) {
           cerrarSesion();
         }

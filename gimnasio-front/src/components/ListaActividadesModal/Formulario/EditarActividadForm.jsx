@@ -34,7 +34,6 @@ const EditarActividadForm = ({ actividad, onSave, onCancel }) => {
 
 
     const onSubmit = async (values) => {
-        // Solo mandamos los campos editables (sin __v, createdAt, etc.)
         await onSave({ _id: actividad._id, categoryId: actividad.categoryId, ...values })
     }
 
@@ -121,7 +120,6 @@ const EditarActividadForm = ({ actividad, onSave, onCancel }) => {
                 <button type="button" className="btn btn-outline-secondary" onClick={onCancel} disabled={isSubmitting}>
                     Cancelar
                 </button>
-                {/* Igual que en clase: solo se puede guardar si se cambió algo */}
                 <button type="submit" className="btn btn-brand" disabled={isSubmitting || !isDirty}>
                     {isSubmitting ? "Guardando..." : "Guardar cambios"}
                 </button>

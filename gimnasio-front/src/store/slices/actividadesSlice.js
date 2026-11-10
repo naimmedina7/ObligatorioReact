@@ -8,11 +8,11 @@ export const actividadesSlice = createSlice({
     name: "actividades",
     initialState,
     reducers: {
-        // Reemplaza la lista completa (lo que devuelve GET /v1/actividades)
+        // Reemplaza la lista completa (GET /v1/actividades)
         guardarActividades: (state, action) => {
             state.listaActividades = action.payload;
         },
-        // Agrega una actividad nueva al final
+        // Agrega una actividad nueva
         agregarActividad: (state, action) => {
             state.listaActividades.push(action.payload);
         },
@@ -26,7 +26,7 @@ export const actividadesSlice = createSlice({
                 state.listaActividades[index] = { ...state.listaActividades[index], ...actividadEditada };
             }
         },
-        // Saca una actividad de la lista (después del DELETE). Recibe el _id
+        // Saca una actividad de la lista (después del DELETE) Recibe el _id
         eliminarActividad: (state, action) => {
             state.listaActividades = state.listaActividades.filter(actividad => actividad._id !== action.payload);
         }

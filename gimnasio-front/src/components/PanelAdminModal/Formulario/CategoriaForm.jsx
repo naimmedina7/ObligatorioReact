@@ -3,7 +3,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { categoriaSchema } from './validations/admin.schema';
 
-
 // Si recibe "categoria" es para editar; si es null, es para crear
 const CategoriaForm = ({ categoria, onSave, onCancel, errorApi }) => {
 

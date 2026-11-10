@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import toast from "react-hot-toast";
 import registroSchema from "../validations/registroSchema";
-import { axiosConfig } from "../../utils/axiosConfig";
+import { axiosConfig } from "../utils/axiosConfig";
 
 const Registro = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Registro = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  // Error de la API "Nombre de usuario ya en uso", se muestra debajo del campo
+  // Error de la API Nombre de usuario ya en uso
   const [errorUsuario, setErrorUsuario] = useState("");
   // URL temporal para mostrar la foto elegida antes de subirla
   const [vistaPrevia, setVistaPrevia] = useState("");
@@ -48,7 +48,6 @@ const Registro = () => {
 
     try {
       await axiosConfig.post("/v1/auth/signup", formData, {
-        // axiosConfig manda JSON por defecto: así axios no convierte el FormData a JSON
         headers: { "Content-Type": "multipart/form-data" },
       });
     } catch (requestError) {
@@ -56,7 +55,7 @@ const Registro = () => {
       const mensaje = requestError.response?.data?.message;
       const texto = Array.isArray(mensaje) ? mensaje.join(", ") : mensaje;
 
-      // 400 "Nombre de usuario ya en uso": se muestra debajo del campo usuario
+      // 400 "Nombre de usuario ya en uso"
       if (texto && texto.toLowerCase().includes("usuario")) {
         setErrorUsuario(texto);
       } else {
@@ -65,7 +64,7 @@ const Registro = () => {
       return; // Si no se creó la cuenta, no intentamos el login
     }
 
-    // Autologin: el mismo POST que hace Login.jsx, con los datos recién cargados
+    // Autologin el mismo POST que hace Login con los datos recién cargados
     try {
       const response = await axiosConfig.post("/v1/auth/login", {
         username: data.username,
@@ -82,7 +81,7 @@ const Registro = () => {
       toast.success("¡Cuenta creada! Bienvenido");
       navigate("/actividades");
     } catch (loginError) {
-      // La cuenta sí se creó: solo falló el login automático
+      // falla el login automatico
       console.error("Error en el login automático:", loginError);
       toast.success("¡Cuenta creada! Iniciá sesión para continuar");
       navigate("/login");
@@ -107,7 +106,6 @@ const Registro = () => {
             </div>
           )}
 
-          {/* Avatar (campo "imagen", se sube a Cloudinary) */}
           <div className="text-center mb-4">
             <div className="avatar avatar-lg mb-2">
               {vistaPrevia ? (
@@ -124,7 +122,6 @@ const Registro = () => {
                 control={control}
                 name="imagen"
                 render={({ field }) => (
-                  // Un input file no tiene "value" controlado: guardamos el archivo elegido
                   <input
                     id="imagen"
                     type="file"
@@ -190,7 +187,6 @@ const Registro = () => {
                     className={`form-control ${errors.username || errorUsuario ? "is-invalid" : ""}`}
                     onChange={(e) => {
                       field.onChange(e);
-                      // Si cambia el usuario, se borra el error "ya en uso"
                       setErrorUsuario("");
                     }}
                   />

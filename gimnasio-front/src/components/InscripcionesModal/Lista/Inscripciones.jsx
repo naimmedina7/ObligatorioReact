@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { mostrarSpinner, ocultarSpinner } from '../../../store/slices/spinnerSlice';
 import { guardarInscripciones, editarInscripcion, eliminarInscripcion } from '../../../store/slices/inscripcionesSlice';
 import { guardarPremium } from '../../../store/slices/premiumSlice';
+import { guardarCategorias } from '../../../store/slices/categoriasSlice';
 
 // Plan Basico máximo 4 inscripciones
 const MAXIMO_BASICO = 4;
@@ -22,25 +23,51 @@ const formatearFecha = (fecha) =>
 const Inscripcion = () => {
     const inscripciones = useSelector(state => state.inscripciones.listaInscripciones);
     const premium = useSelector(state => state.premium.esPremium);
+    const categorias = useSelector(state => state.categorias.listaCategorias);
     const [actividades, setActividades] = useState({});
 
     //GET /v1/inscripciones?page=1&limit=5
     const [pagina, setPagina] = useState(1);
     const [totalPaginas, setTotalPaginas] = useState(1);
+    // Filtro por categoría (igual que en el panel de admin): "" = todas
+    const [filtroCategoria, setFiltroCategoria] = useState("");
+    // Total de inscripciones SIN filtro, para la barra del plan
+    const [totalInscripciones, setTotalInscripciones] = useState(0);
     const [modalAbierto, setModalAbierto] = useState(null);
     const [inscripcionSeleccionada, setInscripcionSeleccionada] = useState(null);
 
     const dispatch = useDispatch();
 
+    // GET /v1/categorias (devuelve el array directo) para el select del filtro
+    useEffect(() => {
+        const obtenerCategorias = async () => {
+            try {
+                const respuesta = await axiosConfig.get("/v1/categorias");
+                dispatch(guardarCategorias(respuesta.data));
+            } catch (error) {
+                console.error("Error al cargar las categorías: ", error);
+            }
+        }
+        obtenerCategorias();
+    }, [dispatch]);
+
     useEffect(() => {
         const obtenerInscripciones = async () => {
             dispatch(mostrarSpinner());
             try {
-                // La API devuelve solo las inscripciones del usuario logeado
-                const respuesta = await axiosConfig.get(`/v1/inscripciones?page=${pagina}&limit=5`);
+                // La API devuelve solo las inscripciones del usuario logeado.
+                // Si hay una categoría elegida, se agrega &categoryId=...
+                const url = filtroCategoria
+                    ? `/v1/inscripciones?page=${pagina}&limit=5&categoryId=${filtroCategoria}`
+                    : `/v1/inscripciones?page=${pagina}&limit=5`;
+                const respuesta = await axiosConfig.get(url);
                 const lista = respuesta.data.data ?? [];
                 dispatch(guardarInscripciones(lista));
                 setTotalPaginas(respuesta.data.totalPages ?? 1);
+                // El total para el plan solo se toma cuando no hay filtro
+                if (!filtroCategoria) {
+                    setTotalInscripciones(respuesta.data.total ?? lista.length);
+                }
 
                 const datosActividades = {};
                 for (const inscripcion of lista) {
@@ -71,7 +98,7 @@ const Inscripcion = () => {
             }
         }
         obtenerInscripciones();
-    }, [dispatch, pagina]);
+    }, [dispatch, pagina, filtroCategoria]);
 
 
     const abrirModal = (inscripcion, tipo) => {
@@ -109,6 +136,7 @@ const Inscripcion = () => {
         try {
             await axiosConfig.delete(`/v1/inscripciones/${inscripcion._id}`);
             dispatch(eliminarInscripcion(inscripcion._id));
+            setTotalInscripciones(totalInscripciones - 1);
             toast.success(`Cancelaste tu inscripción a ${inscripcion.activityName}`);
             cerrarModal();
         } catch (error) {
@@ -119,7 +147,8 @@ const Inscripcion = () => {
         }
     }
 
-    const cantidad = inscripciones.length;
+    // Todas las inscripciones del usuario (no solo las de la página o el filtro)
+    const cantidad = totalInscripciones;
     const porcentaje = Math.min((cantidad / MAXIMO_BASICO) * 100, 100);
 
 
@@ -160,6 +189,24 @@ const Inscripcion = () => {
                         </div>
                     )}
 
+                    {/* Filtro por categoría*/}
+                    <div className="d-flex mb-3">
+                        <select
+                            className="form-select form-select-sm"
+                            style={{ maxWidth: "220px" }}
+                            value={filtroCategoria}
+                            onChange={(e) => {
+                                setFiltroCategoria(e.target.value);
+                                setPagina(1);
+                            }}
+                        >
+                            <option value="">Todas las categorías</option>
+                            {categorias.map((categoria) => (
+                                <option key={categoria._id} value={categoria._id}>{categoria.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Tabla de inscripciones */}
                     <div className="card">
                         <div className="table-responsive">
@@ -177,7 +224,9 @@ const Inscripcion = () => {
                                     {inscripciones.length === 0 ? (
                                         <tr>
                                             <td colSpan="5" className="text-center text-muted py-4">
-                                                Todavía no tenés inscripciones.
+                                                {filtroCategoria
+                                                    ? "No tenés inscripciones en esta categoría."
+                                                    : "Todavía no tenés inscripciones."}
                                             </td>
                                         </tr>
                                     ) : (

@@ -50,11 +50,10 @@ const Admin = () => {
   // Pestaña activa: "actividades" - "categorias"
   const [pestania, setPestania] = useState("actividades");
 
-  // Paginación y filtro de actividades
+  // Paginación de actividades
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalActividades, setTotalActividades] = useState(0);
-  const [filtroCategoria, setFiltroCategoria] = useState("");
 
   // Al crear algo, sumamos 1 para que el useEffect vuelva a pedir la lista
   const [recargarActividades, setRecargarActividades] = useState(0);
@@ -85,15 +84,14 @@ const Admin = () => {
     obtenerCategorias();
   }, [dispatch, recargarCategorias]);
 
-  // GET /v1/actividades o /v1/actividades/categoria/:categoryId si hay filtro
-  /*useEffect(() => {
+  // GET /v1/actividades
+  useEffect(() => {
     const obtenerActividades = async () => {
       dispatch(mostrarSpinner());
       try {
-        const url = filtroCategoria
-          ? `/v1/actividades/categoria/${filtroCategoria}?page=${pagina}&limit=5`
-          : `/v1/actividades?page=${pagina}&limit=5`;
-        const respuesta = await axiosConfig.get(url);
+        const respuesta = await axiosConfig.get(
+          `/v1/actividades?page=${pagina}&limit=5`,
+        );
         const lista = respuesta.data.data ?? [];
         dispatch(guardarActividades(lista));
         setTotalPaginas(respuesta.data.totalPages ?? 1);
@@ -104,9 +102,9 @@ const Admin = () => {
       } finally {
         dispatch(ocultarSpinner());
       }
-    }
+    };
     obtenerActividades();
-  }, [dispatch, pagina, filtroCategoria, recargarActividades]);*/
+  }, [dispatch, pagina, recargarActividades]);
 
   // Gráfica: la tabla trae solo 5 por página, así que pedimos todas para contarlas.
   // Se vuelve a calcular cuando cambia la lista (crear, editar o eliminar).
@@ -314,20 +312,6 @@ const Admin = () => {
             /*TAB ACTIVIDADES*/
             <div>
               <div className="d-flex justify-content-end mb-3">
-                {/* <select
-                  className="form-select form-select-sm"
-                  style={{ maxWidth: "220px" }}
-                  value={filtroCategoria}
-                  onChange={(e) => {
-                    setFiltroCategoria(e.target.value);
-                    setPagina(1);
-                  }}
-                >
-                  <option value="">Todas las categorías</option>
-                  {categorias.map((categoria) => (
-                    <option key={categoria._id} value={categoria._id}>{categoria.name}</option>
-                  ))}
-                </select> */}
                 <button
                   type="button"
                   className="btn btn-brand btn-sm"

@@ -18,6 +18,10 @@ const ListaActividades = () => {
     const actividades = useSelector(state => state.actividades.listaActividades);
     const [categorias, setCategorias] = useState({});
 
+    // Paginación (igual que en Mis inscripciones): GET /v1/actividades?page=1&limit=10
+    const [pagina, setPagina] = useState(1);
+    const [totalPaginas, setTotalPaginas] = useState(1);
+
     // Que modal está abierto: null | "inscripcion" | "editar"
     const [modalAbierto, setModalAbierto] = useState(null);
     const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
@@ -32,9 +36,10 @@ const ListaActividades = () => {
         const obtenerActividades = async () => {
             dispatch(mostrarSpinner());
             try {
-                const respuesta = await axiosConfig.get("/v1/actividades?page=1&limit=10")
+                const respuesta = await axiosConfig.get(`/v1/actividades?page=${pagina}&limit=10`)
                 const lista = respuesta.data.data ?? [];
                 dispatch(guardarActividades(lista))
+                setTotalPaginas(respuesta.data.totalPages ?? 1);
                 const nombres = {};
                 for (const actividad of lista) {
                     const id = actividad.categoryId;
@@ -59,7 +64,7 @@ const ListaActividades = () => {
             }
         }
         obtenerActividades();
-    }, [dispatch])
+    }, [dispatch, pagina])
 
     const abrirModal = (actividad, tipo) => {
         setActividadSeleccionada(actividad);
@@ -132,6 +137,25 @@ const ListaActividades = () => {
                         ))}
                     </div>
                 )}
+
+                {/* Paginación (page / totalPages de la respuesta) */}
+                <nav className="mt-4">
+                    <ul className="pagination justify-content-center">
+                        <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
+                            <button type="button" className="page-link" onClick={() => setPagina(pagina - 1)}>
+                                Anterior
+                            </button>
+                        </li>
+                        <li className="page-item active">
+                            <span className="page-link">{pagina}</span>
+                        </li>
+                        <li className={`page-item ${pagina >= totalPaginas ? "disabled" : ""}`}>
+                            <button type="button" className="page-link" onClick={() => setPagina(pagina + 1)}>
+                                Siguiente
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
             </div>
 
             <InscripcionModal

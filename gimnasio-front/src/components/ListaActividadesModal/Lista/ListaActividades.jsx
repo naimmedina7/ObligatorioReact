@@ -9,6 +9,7 @@ import EditarActividadModal from '../Modal/EditarActividadModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { mostrarSpinner, ocultarSpinner } from '../../../store/slices/spinnerSlice';
 import { guardarActividades, editarActividad } from '../../../store/slices/actividadesSlice';
+import { agregarInscripcion } from '../../../store/slices/inscripcionesSlice';
 
 
 const ListaActividades = () => {
@@ -74,7 +75,9 @@ const ListaActividades = () => {
     const inscribirse = async (inscripcion) => {
         dispatch(mostrarSpinner());
         try {
-            await axiosConfig.post("/v1/inscripciones", inscripcion);
+            // La API devuelve la inscripción creada (con su _id)
+            const respuesta = await axiosConfig.post("/v1/inscripciones", inscripcion);
+            dispatch(agregarInscripcion(respuesta.data));
             toast.success(`Te inscribiste a ${inscripcion.activityName}`);
             cerrarModal();
         } catch (error) {

@@ -12,11 +12,13 @@ import {
 } from "../../store/slices/spinnerSlice";
 import {
   guardarActividades,
+  agregarActividad,
   editarActividad,
   eliminarActividad,
 } from "../../store/slices/actividadesSlice";
 import {
   guardarCategorias,
+  agregarCategoria,
   editarCategoria,
   eliminarCategoria,
 } from "../../store/slices/categoriasSlice";
@@ -55,9 +57,6 @@ const Admin = () => {
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalActividades, setTotalActividades] = useState(0);
 
-  // Al crear algo, sumamos 1 para que el useEffect vuelva a pedir la lista
-  const [recargarActividades, setRecargarActividades] = useState(0);
-  const [recargarCategorias, setRecargarCategorias] = useState(0);
   const [modalAbierto, setModalAbierto] = useState(null);
   const [seleccion, setSeleccion] = useState(null);
   const [errorApi, setErrorApi] = useState("");
@@ -82,7 +81,7 @@ const Admin = () => {
       }
     };
     obtenerCategorias();
-  }, [dispatch, recargarCategorias]);
+  }, [dispatch]);
 
   // GET /v1/actividades
   useEffect(() => {
@@ -104,7 +103,7 @@ const Admin = () => {
       }
     };
     obtenerActividades();
-  }, [dispatch, pagina, recargarActividades]);
+  }, [dispatch, pagina]);
 
   // Gráfica: la tabla trae solo 5 por página, así que pedimos todas para contarlas.
   // Se vuelve a calcular cuando cambia la lista (crear, editar o eliminar).
@@ -183,8 +182,9 @@ const Admin = () => {
         dispatch(editarActividad(datos));
         toast.success("Actividad actualizada");
       } else {
-        await axiosConfig.post("/v1/actividades", datos);
-        setRecargarActividades(recargarActividades + 1);
+        const respuesta = await axiosConfig.post("/v1/actividades", datos);
+        dispatch(agregarActividad(respuesta.data));
+        setTotalActividades(totalActividades + 1);
         toast.success("Actividad creada");
       }
       cerrarModal();
@@ -211,8 +211,9 @@ const Admin = () => {
         dispatch(editarCategoria(datos));
         toast.success("Categoría actualizada");
       } else {
-        await axiosConfig.post("/v1/categorias", datos);
-        setRecargarCategorias(recargarCategorias + 1);
+        // La API devuelve la categoría creada (con su _id)
+        const respuesta = await axiosConfig.post("/v1/categorias", datos);
+        dispatch(agregarCategoria(respuesta.data));
         toast.success("Categoría creada");
       }
       cerrarModal();
